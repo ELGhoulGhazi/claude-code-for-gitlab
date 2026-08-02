@@ -7,7 +7,7 @@ variables:
 
   # Claude configuration
   CLAUDE_TRIGGER_PHRASE: "@ai-assistant" # Custom trigger phrase
-  CLAUDE_MODEL: "sonnet"
+  CLAUDE_MODEL: "opus"
 
   # Git configuration for self-hosted
   GIT_STRATEGY: clone

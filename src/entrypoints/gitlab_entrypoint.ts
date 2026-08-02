@@ -91,7 +91,7 @@ async function runExecutePhase(
 
     // Install Claude Code globally
     const installResult =
-      await $`bun install -g @anthropic-ai/claude-code@1.0.60`;
+      await $`bun install -g @anthropic-ai/claude-code@2.1.220`;
     console.log(installResult.stdout.toString());
 
     if (installResult.exitCode !== 0) {
@@ -158,7 +158,7 @@ async function runExecutePhase(
       INPUT_MAX_TURNS: process.env.MAX_TURNS || "",
       INPUT_CLAUDE_ENV: process.env.CLAUDE_ENV || "",
       INPUT_FALLBACK_MODEL: process.env.FALLBACK_MODEL || "",
-      ANTHROPIC_MODEL: process.env.CLAUDE_MODEL || "sonnet",
+      ANTHROPIC_MODEL: process.env.CLAUDE_MODEL || "opus",
       DETAILED_PERMISSION_MESSAGES: "1",
     };
 

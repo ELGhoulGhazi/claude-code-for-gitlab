@@ -69,7 +69,7 @@ claude_webhook_handler:
     echo "========================================="
     echo "Step 2: Installing Claude Code..."
     echo "========================================="
-    bun install -g @anthropic-ai/claude-code@1.0.60
+    bun install -g @anthropic-ai/claude-code@2.1.220
 
     # Step 3: Install base-action dependencies
     echo "========================================="
@@ -95,7 +95,7 @@ claude_webhook_handler:
     export INPUT_MAX_TURNS="${MAX_TURNS:-}"
     export INPUT_CLAUDE_ENV="${CLAUDE_ENV:-}"
     export INPUT_FALLBACK_MODEL="${FALLBACK_MODEL:-}"
-    export ANTHROPIC_MODEL="${CLAUDE_MODEL:-sonnet}"
+    export ANTHROPIC_MODEL="${CLAUDE_MODEL:-opus}"
     export DETAILED_PERMISSION_MESSAGES="1"
 
     # Run the base-action
@@ -140,7 +140,7 @@ claude_webhook_handler:
 
     # Claude configuration
     CLAUDE_TRIGGER_PHRASE: "@claude"
-    CLAUDE_MODEL: "sonnet"
+    CLAUDE_MODEL: "opus"
 
     # Optional: Allowed tools (comma-separated)
     # ALLOWED_TOOLS: "Edit,Read,Write"

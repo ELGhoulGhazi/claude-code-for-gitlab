@@ -29,7 +29,7 @@
   variables:
     # Default Claude configuration
     CLAUDE_TRIGGER_PHRASE: ${CLAUDE_TRIGGER_PHRASE:-"@claude"}
-    CLAUDE_MODEL: ${CLAUDE_MODEL:-"sonnet"}
+    CLAUDE_MODEL: ${CLAUDE_MODEL:-"opus"}
     CLAUDE_BRANCH_PREFIX: ${CLAUDE_BRANCH_PREFIX:-"claude/"}
     BASE_BRANCH: ${BASE_BRANCH:-"main"}
 

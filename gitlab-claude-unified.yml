@@ -69,7 +69,7 @@ claude_webhook_handler:
 
     # Claude configuration
     CLAUDE_TRIGGER_PHRASE: "@claude"
-    CLAUDE_MODEL: "sonnet"
+    CLAUDE_MODEL: "opus"
 
     # Optional: Allowed tools (comma-separated)
     # ALLOWED_TOOLS: "Edit,Read,Write"

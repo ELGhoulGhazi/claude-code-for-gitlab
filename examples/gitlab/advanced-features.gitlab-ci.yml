@@ -10,7 +10,7 @@ stages:
 variables:
   # Claude configuration with advanced features
   CLAUDE_TRIGGER_PHRASE: "@claude"
-  CLAUDE_MODEL: "sonnet"
+  CLAUDE_MODEL: "opus"
   CLAUDE_BRANCH_PREFIX: "claude/"
   BASE_BRANCH: $CI_DEFAULT_BRANCH
 

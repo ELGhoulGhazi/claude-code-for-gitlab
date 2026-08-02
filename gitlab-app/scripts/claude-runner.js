@@ -126,7 +126,7 @@ async function main() {
       "npx",
       "@anthropic/claude-code@latest",
       "--model",
-      process.env.CLAUDE_MODEL || "sonnet",
+      process.env.CLAUDE_MODEL || "opus",
       "--prompt",
       prompt,
     ];

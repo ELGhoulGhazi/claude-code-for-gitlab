@@ -4,7 +4,7 @@
 variables:
   # Claude configuration
   CLAUDE_TRIGGER_PHRASE: "@claude"
-  CLAUDE_MODEL: "sonnet"
+  CLAUDE_MODEL: "opus"
 
   # Branch configuration
   CLAUDE_BRANCH_PREFIX: "claude/"
