@@ -309,9 +309,9 @@ export async function runClaude(promptPath: string, options: ClaudeOptions) {
     try {
       await writeFile("output.txt", output);
 
-      // Process output.txt into JSON and save to execution file
-      const { stdout: jsonOutput } = await execAsync("jq -s '.' output.txt");
-      await writeFile(EXECUTION_FILE, jsonOutput);
+      // Redirect jq straight to the file — capturing its stdout in Node hits the
+      // child_process exec maxBuffer (~1MB) and fails on large runs.
+      await execAsync(`jq -s '.' output.txt > "${EXECUTION_FILE}"`);
 
       console.log(`Log saved to ${EXECUTION_FILE}`);
     } catch (e) {
@@ -327,8 +327,7 @@ export async function runClaude(promptPath: string, options: ClaudeOptions) {
     if (output) {
       try {
         await writeFile("output.txt", output);
-        const { stdout: jsonOutput } = await execAsync("jq -s '.' output.txt");
-        await writeFile(EXECUTION_FILE, jsonOutput);
+        await execAsync(`jq -s '.' output.txt > "${EXECUTION_FILE}"`);
         core.setOutput("execution_file", EXECUTION_FILE);
       } catch (e) {
         // Ignore errors when processing output during failure
