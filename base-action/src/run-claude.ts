@@ -11,6 +11,9 @@ const execAsync = promisify(exec);
 const TEMP_DIR = process.env.RUNNER_TEMP || process.env.CI_BUILDS_DIR || "/tmp";
 const PIPE_PATH = `${TEMP_DIR}/claude_prompt_pipe`;
 const EXECUTION_FILE = `${TEMP_DIR}/claude-execution-output.json`;
+// Raw stream-json appended live (one JSON object per line) so CI can tail the
+// run's activity while it happens (Control Room live view).
+const LIVE_FILE = `${TEMP_DIR}/claude-live.jsonl`;
 const BASE_ARGS = ["-p", "--verbose", "--output-format", "stream-json"];
 
 export type ClaudeOptions = {
@@ -180,8 +183,11 @@ export async function runClaude(promptPath: string, options: ClaudeOptions) {
 
   // Capture output for parsing execution metrics
   let output = "";
+  // Live activity feed: append the raw stream to a file the CI forwarder tails.
+  const liveStream = createWriteStream(LIVE_FILE, { flags: "a" });
   claudeProcess.stdout.on("data", (data) => {
     const text = data.toString();
+    liveStream.write(text);
 
     // Try to parse as JSON and pretty print if it's on a single line
     const lines = text.split("\n");
@@ -260,6 +266,7 @@ export async function runClaude(promptPath: string, options: ClaudeOptions) {
     }, timeoutMs);
 
     claudeProcess.on("close", (code) => {
+      liveStream.end();
       if (!resolved) {
         clearTimeout(timeoutId);
         resolved = true;
