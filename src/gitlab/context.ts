@@ -28,8 +28,18 @@ export function parseGitLabContext(
 ): ParsedGitLabContext {
   // Use provided options or fall back to environment variables
   const projectId = opts.projectId ?? process.env.CI_PROJECT_ID;
-  const mrIid = opts.mrIid ?? process.env.CI_MERGE_REQUEST_IID;
-  const issueIid = opts.issueIid ?? process.env.CLAUDE_RESOURCE_ID;
+  // Route by CLAUDE_RESOURCE_TYPE, not CI_MERGE_REQUEST_IID: the latter is only
+  // set on MR-event pipelines, but the @claude webhook triggers an ordinary
+  // pipeline where it is empty even for an MR comment. Without this an MR's iid
+  // lands in issueIid and comments POST to issues/{iid}/notes → 404.
+  const isMergeRequest = process.env.CLAUDE_RESOURCE_TYPE === "merge_request";
+  const mrIid =
+    opts.mrIid ??
+    process.env.CI_MERGE_REQUEST_IID ??
+    (isMergeRequest ? process.env.CLAUDE_RESOURCE_ID : undefined);
+  const issueIid =
+    opts.issueIid ??
+    (isMergeRequest ? undefined : process.env.CLAUDE_RESOURCE_ID);
   const host = opts.host ?? process.env.CI_SERVER_URL ?? "https://gitlab.com";
   const pipelineUrl = opts.pipelineUrl ?? process.env.CI_PIPELINE_URL;
 

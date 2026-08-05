@@ -58,8 +58,17 @@ export function createProvider(options: ProviderFactoryOptions): SCMProvider {
     case "gitlab": {
       // Get GitLab-specific configuration
       const projectId = process.env.CI_PROJECT_ID;
-      const mrIid = process.env.CI_MERGE_REQUEST_IID;
-      const issueIid = process.env.CLAUDE_RESOURCE_ID;
+      // Route by CLAUDE_RESOURCE_TYPE, not CI_MERGE_REQUEST_IID: the latter is
+      // only set on MR-event pipelines, but the @claude webhook triggers an
+      // ordinary pipeline where it is empty even for an MR comment. Without this,
+      // an MR's iid lands in issueIid and comments POST to issues/{iid}/notes → 404.
+      const resourceType = process.env.CLAUDE_RESOURCE_TYPE;
+      const resourceId = process.env.CLAUDE_RESOURCE_ID;
+      const isMergeRequest = resourceType === "merge_request";
+      const mrIid =
+        process.env.CI_MERGE_REQUEST_IID ||
+        (isMergeRequest ? resourceId : undefined);
+      const issueIid = isMergeRequest ? undefined : resourceId;
       const host = process.env.CI_SERVER_URL || "https://gitlab.com";
       const pipelineUrl = process.env.CI_PIPELINE_URL;
 
