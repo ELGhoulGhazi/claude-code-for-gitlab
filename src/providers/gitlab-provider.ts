@@ -26,6 +26,7 @@ import {
   fetchGitLabMRData,
   fetchGitLabIssueData,
 } from "../gitlab/data/fetcher";
+import { gitlabApiGet } from "../gitlab/api-get";
 import type {
   GitLabUser,
   GitLabMergeRequest,
@@ -194,9 +195,11 @@ export class GitLabProvider implements SCMProvider {
           `Checking membership for project ${this.context.projectId} and user ${userId}`,
         );
         // GitLab API endpoint: /projects/:id/members/all/:user_id
-        const member = (await (this.api as any).requester.get(
+        const member = await gitlabApiGet<GitLabMember>(
+          this.context.host,
+          this.options.token,
           `/projects/${this.context.projectId}/members/all/${userId}`,
-        )) as GitLabMember;
+        );
         console.log(`Member access level: ${member.access_level}`);
         // Developer (30), Maintainer (40), Owner (50) have write access
         return member.access_level >= 30;
@@ -438,9 +441,11 @@ export class GitLabProvider implements SCMProvider {
     }
 
     // GitLab changes endpoint needs special handling
-    const mr = (await (this.api as any).requester.get(
+    const mr = await gitlabApiGet<GitLabMergeRequestChanges>(
+      this.context.host,
+      this.options.token,
       `/projects/${this.context.projectId}/merge_requests/${parseInt(this.context.mrIid)}/changes`,
-    )) as GitLabMergeRequestChanges;
+    );
 
     // Combine all file diffs
     return mr.changes
@@ -495,9 +500,11 @@ export class GitLabProvider implements SCMProvider {
     }
 
     // GitLab changes endpoint needs special handling
-    const mr = (await (this.api as any).requester.get(
+    const mr = await gitlabApiGet<GitLabMergeRequestChanges>(
+      this.context.host,
+      this.options.token,
       `/projects/${this.context.projectId}/merge_requests/${parseInt(this.context.mrIid)}/changes`,
-    )) as GitLabMergeRequestChanges;
+    );
 
     return mr.changes.map((change) => {
       // More robust diff parsing that ignores diff headers

@@ -6,6 +6,7 @@
 
 import { Gitlab } from "@gitbeaker/rest";
 import type { ParsedGitLabContext } from "../context";
+import { gitlabApiGet } from "../api-get";
 import type {
   GitLabMergeRequest,
   GitLabMergeRequestChanges,
@@ -72,9 +73,11 @@ export async function fetchGitLabMRData(
       context.projectId,
       parseInt(context.mrIid),
     ) as Promise<unknown>,
-    (api as any).requester.get(
+    gitlabApiGet<GitLabMergeRequestChanges>(
+      context.host,
+      token,
       `/projects/${context.projectId}/merge_requests/${parseInt(context.mrIid)}/changes`,
-    ) as Promise<GitLabMergeRequestChanges>,
+    ),
     api.MergeRequestDiscussions.all(
       context.projectId,
       parseInt(context.mrIid),
