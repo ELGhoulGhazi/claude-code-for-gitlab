@@ -246,6 +246,53 @@ export async function createBranch(
   }
 }
 
+/**
+ * Usernames whose comments must never start a run.
+ *
+ * Claude comments on the issue it is working on, and Control Room mirrors chat
+ * messages onto the issue as well — both through this token. Without this, a
+ * comment that happens to contain the trigger phrase (Claude quoting the
+ * request back, or a chat message that includes "@claude") starts another run,
+ * which comments again. The token's own username is resolved once at startup so
+ * this needs no configuration; IGNORE_NOTE_AUTHORS adds any others.
+ */
+let selfUsername: Promise<string | null> | null = null;
+
+function resolveSelfUsername(): Promise<string | null> {
+  if (!selfUsername) {
+    const gitlabUrl = process.env.GITLAB_URL || "https://gitlab.com";
+    selfUsername = fetch(`${gitlabUrl}/api/v4/user`, {
+      headers: { "PRIVATE-TOKEN": process.env.GITLAB_TOKEN! },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((user: any) => {
+        const name = user?.username ?? null;
+        if (name) logger.info("Runner will ignore its own comments", { username: name });
+        else logger.warn("Could not resolve the token's username; self-comments may re-trigger");
+        return name;
+      })
+      .catch((error) => {
+        logger.warn("Could not resolve the token's username", {
+          error: error instanceof Error ? error.message : error,
+        });
+        return null;
+      });
+  }
+  return selfUsername;
+}
+
+export async function isIgnoredAuthor(username: string | undefined): Promise<boolean> {
+  if (!username) return false;
+  const configured = (process.env.IGNORE_NOTE_AUTHORS || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (configured.includes(username.toLowerCase())) return true;
+
+  const self = await resolveSelfUsername();
+  return !!self && self.toLowerCase() === username.toLowerCase();
+}
+
 // Sanitize branch name for GitLab
 export function sanitizeBranchName(title: string): string {
   return title

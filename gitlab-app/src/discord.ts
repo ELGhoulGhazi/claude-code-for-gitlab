@@ -6,11 +6,16 @@ interface DiscordNotificationOptions {
   resourceType: string;
   resourceId: string;
   branch: string;
-  pipelineId: number;
+  /** Control Room run id — replaces the GitLab pipeline id. */
+  runId: string;
+  /** Control Room run page. Absent when Control Room isn't configured. */
+  runUrl?: string;
   gitlabUrl: string;
   triggerPhrase: string;
   directPrompt: string;
   issueTitle?: string;
+  /** Where the run was asked for, so Discord shows the two apart. */
+  source?: string;
 }
 
 /**
@@ -34,15 +39,14 @@ export function sendPipelineNotification(
       resourceType,
       resourceId,
       branch,
-      pipelineId,
+      runId,
+      runUrl,
       gitlabUrl,
       triggerPhrase,
       directPrompt,
       issueTitle,
+      source,
     } = options;
-
-    // Construct pipeline URL
-    const pipelineUrl = `${gitlabUrl}/${projectPath}/-/pipelines/${pipelineId}`;
 
     // Determine resource URL
     const resourceUrl =
@@ -54,8 +58,11 @@ export function sendPipelineNotification(
 
     // Create Discord embed
     const embed = {
-      title: "🤖 Claude Pipeline Triggered",
-      url: pipelineUrl,
+      title:
+        source === "control-room"
+          ? "🤖 Claude Run Started (Control Room)"
+          : "🤖 Claude Run Started",
+      url: runUrl ?? resourceUrl ?? undefined,
       color: 0xfc6d26, // GitLab orange
       fields: [
         {
@@ -84,8 +91,8 @@ export function sendPipelineNotification(
           inline: true,
         },
         {
-          name: "Pipeline ID",
-          value: `[#${pipelineId}](${pipelineUrl})`,
+          name: "Run",
+          value: runUrl ? `[${runId}](${runUrl})` : runId,
           inline: true,
         },
         {
